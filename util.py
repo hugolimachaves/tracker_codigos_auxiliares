@@ -308,16 +308,18 @@ def percorrer(nivel,raiz,visita,argsVisita):
         raiz.pop()
     level -=1
 
-    '''
-    import util as ut
-    ut.percorrer(0,['D:\siameseFC_tracker\\alov300_annotation'],ut.copiaDiretoriosVazio,[['D:\siameseFC_tracker\labTeste\destino']])
-    '''
-
+   
+#Copia a estrutura de diretorios, sem adicinar arquivo. Deve ser usado em conjunto com 'percorrer'
 def copiaDiretoriosVazio(nivel,raiz,argsVisita):
     '''
     para usar a função, passe os seguintes argumentos para a funçao percorrer:
     percorrer( nivel inicial(inteirio), raiz da pasta de origem (string dentro de uma lista), o nome dessa funao, raiz da pasta de destino , (string dentro de uma lista de uma lista - e.g.: [['destino']]) )
     ut.percorrer(0,['D:\siameseFC_tracker\\alov300_saida'],ut.copiaDiretoriosVazio,[['D:\siameseFC_tracker\labTeste\destino']])
+    '''
+    '''
+    exemplo:
+    import util as ut
+    ut.percorrer(0,['D:\siameseFC_tracker\\alov300_annotation'],ut.copiaDiretoriosVazio,[['D:\siameseFC_tracker\labTeste\destino']])
     '''
     '''
     Essa funçao esta mal programada? esta... mas nao me julgue pois ela funciona e eu estava com pressa
@@ -346,8 +348,8 @@ def copiaDiretoriosVazio(nivel,raiz,argsVisita):
         print('Nao foi possivel criar: ',destinoCompleto)
 
 
-#ver descriçao de copiaDiretoriosVazio
-def copiaArquivosNaEstrutura(nivel,raiz,argsVisita):
+#Copiar arquivo de um estrutura de arquivos para outro estrutura, antes deve-se chamar a funçao 'copiaDiretoriosVazio'
+def copiaArquivosNaEstrutura(nivel,raiz,argsVisita): #nivel da iteração, raiz da pasta de origem, argsVisita e o destino dentro de uma lista ['destino']
     destino = argsVisita.copy()
     raizOrigemMaisSufixos = raiz.copy()
     raiz = raizOrigemMaisSufixos[0]  
@@ -360,54 +362,108 @@ def copiaArquivosNaEstrutura(nivel,raiz,argsVisita):
     destinoSufixo = ''
     for i in destino[0]:
         destinoPrefixo = os.path.join(destinoPrefixo,i)
-    print('raizOrigemMaisSufixos[0]: ', raizOrigemMaisSufixos[0])
     if len(destino)>1:
         for i in destino[1]:
             destinoSufixo = os.path.join(destinoSufixo,i)
-    
     destinoCompleto = os.path.join(destinoPrefixo,destinoSufixo)
     try:
         shutil.copy(os.path.join(raiz,destinoSufixo,'saidaSiameseFC.txt'), destinoCompleto)
-        #os.makedirs(destinoCompleto)
     except:
-        print('Nao foi possivel copiar para: ',destinoCompleto)
+        print('Nao foi possivel copiar o tipo de arquivo para: ',destinoCompleto)
   
+#Converte arquivos em uma estrutura para outra, convertendo-os para a saida padrao de processamento 
+def converterArquivosdeSiameseFCParaAlov(nivel,raiz,argsVisita): # função conjunta com ut.percorrer
+    #exemplo de chamda
+    '''ut.percorrer(0,['D:/siameseFC_tracker/alov300_saida'],ut.converterArquivosdeSiameseFCParaAlov,[['D:/siameseFC_tracker/labTeste/destino']])'''
+    destino = argsVisita.copy()
+    raizOrigemMaisSufixos = raiz.copy()
+    raiz = raizOrigemMaisSufixos[0]  
+    if raizOrigemMaisSufixos != []:
+        if len (raizOrigemMaisSufixos) == 1:
+            pass
+        else:
+            destino.append(raizOrigemMaisSufixos[1:])
+    destinoPrefixo = ''
+    destinoSufixo = ''
+    for i in destino[0]:
+        destinoPrefixo = os.path.join(destinoPrefixo,i)
+    if len(destino)>1:
+        for i in destino[1]:
+            destinoSufixo = os.path.join(destinoSufixo,i)
+    destinoSufixo = destinoSufixo.replace('\\','/')
+    destinoCompleto = os.path.join(destinoPrefixo,destinoSufixo)
+    destinoCompleto = destinoCompleto.replace('\\','/')
+    try:
+        numero_frame = getNumeroPrimeiroFrame(os.path.join('D:/siameseFC_tracker/alov300_annotation',destinoSufixo + '.ann'))
+        arquivo_entrada = os.path.join(raiz,destinoSufixo,'saidaSiameseFC.txt')
+        arquivo_entrada = arquivo_entrada.replace('\\','/')
+        arquivo_saida = destinoCompleto
+     
+        conversor_siameseFC_alov300(numero_frame,arquivo_entrada,arquivo_saida,'convertido')
+    except:
+        print('Nao foi possivel converter para: ',destinoCompleto)
 
 
 
-#TODO: arrumar essa funçao pq ela so copia um diretorio por vez... mas pode copiar varios arquivos...
-#copiar arquivos de um diretorio para outro de
-def copiarPasta(listaArgs): #arg 0: raiz pasta de destino - arg 1: camnhoraiz local onde as operacoes serao realizadas
-    print('copiando...')
-    raizDestino = listaArgs[0] # string com a raiz da arvore de recursao para onde devemos copiar
-    raizOrigem = listaArgs[1] # lista que compoe o caminho da pasta a ser copiada
-    pasta = listaArgs[2] # pasta a ser copiada ut.print()
-    arquivos = listaArgs[3] # lista arquivos a serem copiado
-    shortCaminho = [] # mesma lista que caminho, porem nao copia a raiz
-    for i in range(1,len(raizOrigem)):
-        shortCaminho.append(raizOrigem[i])
-    if type(raizOrigem) == list:
-        
-        raizOrigem = list2path(raizOrigem)
-        print('de: ',raizOrigem)
-        shortCaminho = list2path(shortCaminho)
-        destino = os.path.join(raizDestino,shortCaminho)
-    if(os.path.exists(os.path.join(raizOrigem,'alteracao'))):
-        origem = os.path.join(raizOrigem,pasta)
-        shutil.copytree(origem,destino)
-    if(os.path.exists(raizOrigem)):
-        if(os.path.exists(os.path.join(raizOrigem,'alteracao'))):
-            if arquivos:
-                for i in arquivos:
-                    try:
-                        origemArquivo = os.path.join(raizOrigem,i)
-                        shutil.copy(origemArquivo,destino)
-                    except:
-                        pass
 
 
-#funcoes para teste
-#teste 1
+def conversor_siameseFC_alov300(frame,input,path_output,namefile):
+    '''
+    funçao para converter a saida do siameseFC para analise padrao do alov300
+    argumentos:
+
+    um inteiro
+    um caminho para ler um arquivo txt, txt_in
+    um caminho para gravar um arquivo txt_out
+    uma nome para gravar o arquivo txt_out, que ja sera .txt, entao nao passe a extensao 
+
+    ex.:  def func(int, caminho_in, , nome)
+
+    A funcao deve ler o arquivo txt_in em camino_in.
+    Para cada cada linha de txt_in deve ser incrementado de int
+
+    ie.:
+
+    int premeiraLinha_txt_in
+    int+1 segundaLinha_txt_in
+    .
+    .
+    .
+    int+n ultimaLinha_txt_in
+
+
+    para cada linha de txt_in, há 4 elementos.
+    criar uma linha equivalente no seguinte formato:
+
+    int 1_txt_in 2txt_in 1_txt_in+3_txt_in 2txt_in+4_xt_in 
+
+    totalizando 5 elementos por linha, onde:
+    1_txt_in, significa 1º elemento de uma determinada linha no arquivo txt_in
+    2_txt_in, significa 2º elemento de uma determinada linha no arquivo txt_in
+    .
+    .
+    .
+    '''
+    input = input.replace('\\\\','/')
+    input = input.replace('\\','/')
+    path_output =  path_output.replace('\\\\','/')
+    path_output =  path_output.replace('\\','/')
+    output = os.path.join(path_output,namefile + ".txt")
+    with open (input) as i, open (output, "wt") as o:
+        for line in i:
+            line = line.replace("\n", "")
+            coord = line.split()		
+            o.write("%d " %frame + "%f " %float(coord[0]) + "%f " %float(coord[1]) + "%f " %(float(coord[0]) + float(coord[2])) + "%f\n" %(float(coord[1]) + float(coord[3])))
+            frame+=1
+
+
+def getNumeroPrimeiroFrame(caminho):
+    file = open(caminho,'r')
+    linha = file.readline()
+    file.close()
+    valoresLinha = linha.split()
+    frame =  int(valoresLinha[0])
+    return frame
 
 
 
