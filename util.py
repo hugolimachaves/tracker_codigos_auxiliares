@@ -313,64 +313,65 @@ def percorrer(nivel,raiz,visita,argsVisita):
     ut.percorrer(0,['D:\siameseFC_tracker\\alov300_annotation'],ut.copiaDiretoriosVazio,[['D:\siameseFC_tracker\labTeste\destino']])
     '''
 
-def copiaDiretoriosVazio(nivel,raiz,argsVisita): #argsVisita [0] destino da copia
-
-    print('variavel raiz pre copia:', raiz)
-    print('argsVisita:', argsVisita)
+def copiaDiretoriosVazio(nivel,raiz,argsVisita):
+    '''
+    para usar a função, passe os seguintes argumentos para a funçao percorrer:
+    percorrer( nivel inicial(inteirio), raiz da pasta de origem (string dentro de uma lista), o nome dessa funao, raiz da pasta de destino , (string dentro de uma lista de uma lista - e.g.: [['destino']]) )
+    ut.percorrer(0,['D:\siameseFC_tracker\\alov300_saida'],ut.copiaDiretoriosVazio,[['D:\siameseFC_tracker\labTeste\destino']])
+    '''
+    '''
+    Essa funçao esta mal programada? esta... mas nao me julgue pois ela funciona e eu estava com pressa
+    '''  
     destino = argsVisita.copy()
-    raizOrigem = raiz.copy()
-    print('raiz Origem:', raizOrigem)
-    print('destino pre:',destino)
-    print('variavel raiz pre copia 2:', raiz)
-    
-    print('destino pre apos del:',destino)
-    if raizOrigem != []:
-        if len (raizOrigem) == 1:
+    raizOrigemMaisSufixos = raiz.copy()
+    raiz = raizOrigemMaisSufixos[0]  
+    if raizOrigemMaisSufixos != []:
+        if len (raizOrigemMaisSufixos) == 1:
             pass
         else:
-
-            destino.append(raizOrigem[1:])
- 
-    print('destino pos:',destino)
-    #del destino[0]
-    #destino.insert(0,raizOrigem[0])
-
-    destinok = ''
-    destinol = ''
-    print('destino antes do for', destino)
+            destino.append(raizOrigemMaisSufixos[1:])
+    destinoPrefixo = ''
+    destinoSufixo = ''
     for i in destino[0]:
-        destinok = os.path.join(destinok,i)
+        destinoPrefixo = os.path.join(destinoPrefixo,i)
+    print('raizOrigemMaisSufixos[0]: ', raizOrigemMaisSufixos[0])
     if len(destino)>1:
         for i in destino[1]:
-            destinol = os.path.join(destinol,i)
+            destinoSufixo = os.path.join(destinoSufixo,i)
     
-    destinom = os.path.join(destinok,destinol)
-    print('destinok: ', destinok)
-    print('destinol: ', destinol)
-    print('destinom; ', destinom)
-    
-    
-    ''' qualquer coisa descomente
-    destinoStr = ''
-    
-    for cont, i in enumerate(raizOrigem):
-        destinoStr = ''
-        if cont == 0:
+    destinoCompleto = os.path.join(destinoPrefixo,destinoSufixo)
+    try:
+        os.makedirs(destinoCompleto)
+    except:
+        print('Nao foi possivel criar: ',destinoCompleto)
+
+
+#ver descriçao de copiaDiretoriosVazio
+def copiaArquivosNaEstrutura(nivel,raiz,argsVisita):
+    destino = argsVisita.copy()
+    raizOrigemMaisSufixos = raiz.copy()
+    raiz = raizOrigemMaisSufixos[0]  
+    if raizOrigemMaisSufixos != []:
+        if len (raizOrigemMaisSufixos) == 1:
             pass
         else:
-            for i in destino[0]:
-                destinoStr = os.path.join(destinoStr,i)
-                print(destinoStr)
-    '''
-          
+            destino.append(raizOrigemMaisSufixos[1:])
+    destinoPrefixo = ''
+    destinoSufixo = ''
+    for i in destino[0]:
+        destinoPrefixo = os.path.join(destinoPrefixo,i)
+    print('raizOrigemMaisSufixos[0]: ', raizOrigemMaisSufixos[0])
+    if len(destino)>1:
+        for i in destino[1]:
+            destinoSufixo = os.path.join(destinoSufixo,i)
+    
+    destinoCompleto = os.path.join(destinoPrefixo,destinoSufixo)
     try:
-
-        os.makedirs(destinom)
+        shutil.copy(os.path.join(raiz,destinoSufixo,'saidaSiameseFC.txt'), destinoCompleto)
+        #os.makedirs(destinoCompleto)
     except:
-        print('Nao foi possivel criar: ',destinom)
+        print('Nao foi possivel copiar para: ',destinoCompleto)
   
-
-#percorrer('caminhoRaizOrigem', copiaDiretoriosVazio,  [ 'caminhoDestino', [raiz]] )
 
 
 
